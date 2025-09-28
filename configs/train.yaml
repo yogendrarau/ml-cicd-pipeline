@@ -1,0 +1,14 @@
+random_seed: 42
+dataset: iris 
+model:
+  type: logistic_regression
+  params:
+    C: 1.0
+    max_iter: 200
+split:
+  test_size: 0.2
+  stratify: true
+paths:
+  artifacts_dir: artifacts
+  model_path: artifacts/model.pkl
+  metrics_path: artifacts/metrics.json

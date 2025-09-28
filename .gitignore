@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+.envrc
+
+# Data & artifacts
+data/
+artifacts/
+models/
+*.pkl
+*.joblib
+
+# OS / IDE
+.DS_Store
+*.log
+.vscode/
+.idea/
+
+# Python packaging
+pip-wheel-metadata/
+dist/
+build/
+
+# DVC (if you add it later)
+.dvc/
+*.dvc

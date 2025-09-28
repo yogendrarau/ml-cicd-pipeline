@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.vscode/
+.idea/
+
+# local outputs
+artifacts/
+data/
+models/
+logs/

@@ -1,0 +1,6 @@
+primary_metric: accuracy
+rules:
+
+  min_delta: 0.002
+
+  max_latency_ms_p95: 200
