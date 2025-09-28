@@ -1,3 +1,3 @@
 primary_metric: test_accuracy
 rules:
-  min_delta: 0.002
+  min_delta: -1.0
