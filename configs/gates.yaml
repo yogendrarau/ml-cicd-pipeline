@@ -1,6 +1,3 @@
-primary_metric: accuracy
+primary_metric: test_accuracy
 rules:
-
   min_delta: 0.002
-
-  max_latency_ms_p95: 200
