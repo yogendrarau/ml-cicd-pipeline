@@ -52,10 +52,11 @@ def main(cfg_path: str = "configs/train.yaml"):
 
     run_id = os.getenv("GITHUB_SHA", "local")
     metrics = {
-        "run_id": run_id,
-        "train_accuracy": train_acc,
-        "notes": "Model trained; evaluate.py will add test metrics.",
-    }
+    "run_id": run_id,
+    "train_accuracy": train_acc,
+    "accuracy": train_acc,  # alias for backward-compat with tests
+    "notes": "Model trained; evaluate.py will add test metrics."
+}
     json.dump(metrics, open(paths["metrics_path"], "w"))
     print(f"Saved model to {paths['model_path']}; train_accuracy={train_acc:.4f}")
 
