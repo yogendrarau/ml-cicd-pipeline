@@ -1,0 +1,1 @@
+{"run_id": "local", "train_accuracy": 0.9583333333333334, "notes": "Model trained; evaluate.py will add test metrics.", "test_accuracy": 0.9333333333333333}

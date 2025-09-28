@@ -6,7 +6,8 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write   # allow committing updated manifest to repo
+  contents: write          # allow committing updated manifest
+  id-token: write          # required for GitHub OIDC → AWS
 
 jobs:
   ci:
@@ -57,13 +58,17 @@ jobs:
       - name: Gate (compare & promote)
         id: gate
         run: python scripts/compare_and_promote.py
+      - name: Debug gate output
+        env:
+          GATE: ${{ steps.gate.outputs.should_deploy }}
+        run: echo "Gate decided => $GATE"
       - name: Commit updated manifest (on promotion)
         if: steps.gate.outputs.should_deploy == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add registry/production/manifest.json
-          git commit -m "ci: promote model to production (run $GITHUB_SHA)"
+          git commit -m "ci: promote model to production (run $GITHUB_SHA)" || echo "No manifest changes to commit"
           git push
       - name: Upload artifacts (model + metrics)
         uses: actions/upload-artifact@v4
@@ -80,28 +85,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Configure AWS creds (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: us-east-2
+
       - name: Download trained artifacts from CI
         uses: actions/download-artifact@v4
         with:
           name: model-${{ github.sha }}
-          path: .
+          path: artifacts
+
       - name: Login to ECR
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
+
       - name: Build & push image (includes artifacts/)
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
           REPO: ml-cicd-demo
           TAG: ${{ github.sha }}
         run: docker build -t $REGISTRY/$REPO:$TAG . && docker push $REGISTRY/$REPO:$TAG
+
       - name: Register task definition revision
         env:
           TAG: ${{ github.sha }}
         run: sed "s|<IMAGE_TAG>|$TAG|g" ecs-taskdef.json > new-taskdef.json && aws ecs register-task-definition --cli-input-json file://new-taskdef.json --region us-east-2
+
       - name: Update ECS service
         run: aws ecs update-service --cluster ml-cicd-cluster --service ml-cicd-service --force-new-deployment --region us-east-2
