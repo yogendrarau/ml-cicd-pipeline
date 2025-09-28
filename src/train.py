@@ -21,11 +21,11 @@ def main(cfg_path: str = "configs/train.yaml"):
     cfg = yaml.safe_load(open(cfg_path))
     set_seed(cfg["random_seed"])
 
-    # Load data
+    
     data = load_iris()
     X, y = data.data, data.target
 
-    # Deterministic split
+    
     strat = y if cfg["split"]["stratify"] else None
     X_tr, X_te, y_tr, y_te = train_test_split(
         X,
@@ -54,7 +54,7 @@ def main(cfg_path: str = "configs/train.yaml"):
     metrics = {
     "run_id": run_id,
     "train_accuracy": train_acc,
-    "accuracy": train_acc,  # alias for backward-compat with tests
+    "accuracy": train_acc,  
     "notes": "Model trained; evaluate.py will add test metrics."
 }
     json.dump(metrics, open(paths["metrics_path"], "w"))

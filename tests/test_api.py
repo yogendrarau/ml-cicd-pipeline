@@ -7,7 +7,7 @@ def _ensure_model():
 
 def test_health_and_predict():
     _ensure_model()
-    # Start uvicorn for test
+    
     proc = subprocess.Popen(["python", "-m", "uvicorn", "app.main:app", "--port", "8001"])
     time.sleep(1.5)
     try:

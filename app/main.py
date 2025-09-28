@@ -17,7 +17,7 @@ def healthz():
 @app.on_event("startup")
 def warm_model():
     try:
-        load_model()  # best-effort warmup
+        load_model()
     except Exception:
         pass
 

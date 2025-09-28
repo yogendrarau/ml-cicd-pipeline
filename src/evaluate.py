@@ -13,7 +13,7 @@ def main(cfg_path: str = "configs/train.yaml"):
     paths = cfg["paths"]
     assert Path(paths["model_path"]).exists(), "Model not found. Run src/train.py first."
 
-    # Deterministic split must match train.py
+    
     data = load_iris()
     X, y = data.data, data.target
     strat = y if cfg["split"]["stratify"] else None
@@ -28,7 +28,7 @@ def main(cfg_path: str = "configs/train.yaml"):
     model = joblib.load(paths["model_path"])
     test_acc = float(accuracy_score(y_te, model.predict(X_te)))
 
-    # Merge into metrics.json
+    
     metrics_path = Path(paths["metrics_path"])
     base = {}
     if metrics_path.exists():
