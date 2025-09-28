@@ -79,4 +79,4 @@ jobs:
     if: needs.train_eval_gate.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
     steps:
-      - run: echo "✅ Gate passed — this is where you deploy (Cloud Run/ECS)."
+      - run: echo "Gate passed — this is where you deploy."
