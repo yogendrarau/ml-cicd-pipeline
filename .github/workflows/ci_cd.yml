@@ -74,9 +74,34 @@ jobs:
             artifacts/metrics.json
 
   deploy:
-    name: Deploy (gated)
+    name: Deploy to AWS ECS Fargate
     needs: train_eval_gate
     if: needs.train_eval_gate.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Gate passed — this is where you deploy."
+      - uses: actions/checkout@v4
+      - name: Configure AWS creds (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-east-2
+      - name: Download trained artifacts from CI
+        uses: actions/download-artifact@v4
+        with:
+          name: model-${{ github.sha }}
+          path: .
+      - name: Login to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build & push image (includes artifacts/)
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          REPO: ml-cicd-demo
+          TAG: ${{ github.sha }}
+        run: docker build -t $REGISTRY/$REPO:$TAG . && docker push $REGISTRY/$REPO:$TAG
+      - name: Register task definition revision
+        env:
+          TAG: ${{ github.sha }}
+        run: sed "s|<IMAGE_TAG>|$TAG|g" ecs-taskdef.json > new-taskdef.json && aws ecs register-task-definition --cli-input-json file://new-taskdef.json --region us-east-2
+      - name: Update ECS service
+        run: aws ecs update-service --cluster ml-cicd-cluster --service ml-cicd-service --force-new-deployment --region us-east-2
